@@ -1,4 +1,4 @@
-Première modification : présentation de l'exercice.
+Première modification : présentation détaillée de l'exercice.
 
 
 
