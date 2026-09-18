@@ -70,7 +70,9 @@ J'ai choisi les commits: `4c7d66b5`(Distribution : refuser de livrer un exe dont
 
 ## Dire ce qu'ils font
 
-`4c7d66b5 — Distribution : refuser de livrer un exe dont une DLL importee manque`: Oui Le message indique clairement que la distribution doit refuser de livrer un exécutable lorsqu’une DLL importée est manquante.
+`4c7d66b5 — Distribution : refuser de livrer un exe dont une DLL importee manque`: Oui Le titre indique clairement l'action : le système de distribution doit refuser de livrer un exécutable lorsqu'une DLL importée nécessaire est absente.
+
+Le corps précise comment : VerifierImports() compare désormais la table d'imports réelle de NKCode.exe avec les DLL effectivement livrées. Si une DLL non système manque, la distribution échoue..
 
 `ad0779cb — NKCode : runtime MinGW en statique — l'exe ne depend plus du msys64 du testeur`: Oui. Le message indique que le runtime MinGW est lié statiquement afin que l’exécutable ne dépende plus du MSYS2/MinGW installé sur la machine du testeur.
 
@@ -79,7 +81,7 @@ J'ai choisi les commits: `4c7d66b5`(Distribution : refuser de livrer un exe dont
 
 ## Pourquoi?
 
-`4c7d66b5 — Distribution : refuser de livrer un exe dont une DLL importee manque`:  Parce que Le corps du commit explique que la liste des DLL copiées était maintenue manuellement et qu’elle était incomplète. La nouvelle vérification compare la table d’imports réelle du binaire avec les fichiers livrés afin de détecter les DLL manquantes.
+`4c7d66b5 — Distribution : refuser de livrer un exe dont une DLL importee manque`:  Parce que Le corps explique que la liste des DLL était maintenue manuellement et incomplète. Les trois runtimes MinGW n'y figuraient pas, ce qui pouvait conduire à livrer un exécutable incomplet sans que le problème soit détecté avant qu'un testeur le signale. Le commit donne donc bien la raison de la modification : éviter de livrer un exécutable dont une dépendance nécessaire manque.
 
 
 `ad0779cb — NKCode : runtime MinGW en statique — l'exe ne depend plus du msys64 du testeur`: parce que le corps du commit explique que NKCode.exe dépendait auparavant de certaines DLL MinGW trouvées grâce au PATH. Une différence de version de MSYS2 pouvait donc provoquer une erreur au lancement.
@@ -89,8 +91,13 @@ J'ai choisi les commits: `4c7d66b5`(Distribution : refuser de livrer un exe dont
 
 ## Un seul sujet?
 
-Les trois commits parlent tous d'un seul sujet.
+`4c7d66b5 — Distribution : refuser de livrer un exe dont une DLL importee manque`: Oui le commit porte sur un seul sujet qui est de vérifier les DLL nécessaires à NKCode.exe avant de distribuer l'exécutable.
 
+`ad0779cb — NKCode : runtime MinGW en statique — l'exe ne depend plus du msys64 du testeur`: Oui le commit porte sur un seul sujet qui est supprimer la dépendance de l'exécutable au runtime MinGW présent sur la machine du testeur.
+
+`5fc605de — Vulkan : la garde headless existait UNIQUEMENT sous Windows -- segfault sur les trois dorsales Linux`: Oui le commit porte sur un seul sujet de corriger la gestion du mode headless de Vulkan sous Linux afin d'éviter le segfault.
+
+Les trois commits sont donc chacun centrés sur un sujet précis, même si leurs domaines techniques sont différents.
 ## Le message le plus faible
 
 Parmi les trois, le message que je trouve le plus faible est :
@@ -98,3 +105,8 @@ Parmi les trois, le message que je trouve le plus faible est :
 `5fc605de — Vulkan : la garde headless existait UNIQUEMENT sous Windows -- segfault sur les trois dorsales Linux`
 
 Il donne déjà beaucoup d’informations, notamment le problème rencontré. Cependant, il décrit surtout le constat et la cause, sans formuler directement l’action réalisée sous la forme d’un sujet court à l’impératif.
+Je proposerais donc une formulation plus orientée vers l'action :
+
+`Vulkan : ajouter la garde headless aux backends Linux`.
+
+Ce nouveau message indique directement la modification effectuée tout en conservant le contexte technique.
