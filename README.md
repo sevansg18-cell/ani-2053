@@ -1,1 +1,1 @@
-# ani-2053 - Modification clone2
+# ani-2053 - Conflit resolu
