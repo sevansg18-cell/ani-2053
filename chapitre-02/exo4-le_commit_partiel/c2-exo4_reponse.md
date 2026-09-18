@@ -160,3 +160,46 @@ Binary files a/fichier1.txt and b/fichier1.txt differ
 ```
 
 ## Chacun parle de son sujet 
+
+Après avoir corrigé le problème d'encodage de `fichier1.txt`, j'ai effectué deux modifications différentes et éloignées dans le même fichier.
+
+J'ai utilisé :
+
+```
+git diff -- fichier1.txt
+```
+
+pour vérifier que les deux modifications étaient bien présentes.
+
+Ensuite, j'ai utilisé :
+
+```
+git add -p fichier1.txt
+```
+
+Git a séparé les modifications en deux blocs :
+
+```
+(1/2) Stage this hunk [...]? y
+(2/2) Stage this hunk [...]? n
+```
+
+J'ai donc sélectionné la première modification pour le premier commit et laissé la deuxième dans le répertoire de travail.
+
+J'ai créé le premier commit :
+
+```
+git commit -m "Première modification de fichier1"
+```
+
+Puis j'ai ajouté la deuxième modification et créé le second commit :
+
+```
+git add fichier1.txt
+git commit -m "Deuxième modification de fichier1"
+```
+
+Enfin, j'ai utilisé `git show` sur chacun des commits afin de vérifier leur contenu.
+
+Ainsi, chaque commit contient uniquement sa propre modification : **chacun parle de son sujet**.
+
