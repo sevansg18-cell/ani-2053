@@ -1,161 +1,229 @@
-# Commit d'un fichier de 10 Mo
+# Ajout puis suppression d'un fichier de 10 Mo
 
-Pour réaliser cet exercice, j'ai encore utilisé le dépôt d'essai situé dans :
+Pour réaliser cette manipulation, je me suis placé dans mon dépôt d'essai avec le chemin suivant :
 
 ```
 C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test
 ```
 
+L'objectif était de créer volontairement un fichier de **10 Mo**, de le commit, puis de le supprimer au commit suivant afin de mesurer l'évolution de la taille du dossier `.git`.
+
+## Mesure de la taille avant l'ajout
+
+Avant de commencer la nouvelle expérience, j'ai d'abord supprimé les anciens objets Git qui n'étaient plus utilisés avec les commandes :
+
+```
+git reflog expire --expire=now --all
+git gc --prune=now
+```
+
+Le résultat de `git gc` a été :
+
+```
+Enumerating objects: 30, done.
+Counting objects: 100% (30/30), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (20/20), done.
+Writing objects: 100% (30/30), done.
+Total 30 (delta 11), reused 0 (delta 0), pack-reused 0 (from 0)
+```
+
+J'ai ensuite mesuré la taille du dossier `.git` avec :
+
+```
+(Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum
+```
+
+J'ai obtenu :
+
+```
+34555
+```
+
+Puis j'ai converti cette valeur en Mo avec :
+
+```
+"{0:N2} Mo" -f ((Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
+```
+
+Résultat :
+
+```
+0,03 Mo
+```
+
+Cette valeur constitue donc mon état **avant l'ajout du fichier de 10 Mo**.
+
 ## Création du fichier de 10 Mo
 
-J'ai d'abord créé un fichier de 10 Mo avec la commande suivante :
+Pour créer le fichier, j'ai utilisé PowerShell afin de générer des données aléatoires. J'ai utilisé les commandes suivantes :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> fsutil file createnew gros_fichier.bin 10485760
-Le fichier C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test\gros_fichier.bin est créé
+$bytes = New-Object byte[] 10MB
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($bytes)
+$rng.Dispose()
+[System.IO.File]::WriteAllBytes("gros_fichier.bin", $bytes)
 ```
 
-J'ai vérifié sa taille avec :
+J'ai ensuite vérifié la taille du fichier avec :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> Get-Item gros_fichier.bin | Select-Object Name,Length
+Get-Item gros_fichier.bin | Select-Object Name,Length
+```
 
+J'ai obtenu :
+
+```
 Name               Length
 ----               ------
 gros_fichier.bin 10485760
 ```
 
-Le fichier faisait donc bien `10 485 760` octets.
+Le fichier fait donc exactement **10 485 760 octets**.
 
-## Premier essai de commit
+## Ajout du fichier dans le dépôt
 
-J'ai ajouté le fichier puis effectué le premier commit :
+J'ai ajouté le fichier à l'index avec :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git add gros_fichier.bin
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git commit -m "Ajout volontaire d'un fichier de 10 Mo"
-[branche-fille 6ad3897] Ajout volontaire d'un fichier de 10 Mo
+git add gros_fichier.bin
+```
+
+Puis j'ai créé le premier commit avec :
+
+```
+git commit -m "Ajout volontaire d'un fichier de 10 Mo"
+```
+
+Le résultat obtenu est :
+
+```
+[branche-fille d3fe3c4] Ajout volontaire d'un fichier de 10 Mo
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 gros_fichier.bin
 ```
 
-J'ai ensuite tenté d'enregistrer la suppression du fichier avec :
+Après ce commit, j'ai mesuré à nouveau la taille de `.git` :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git add -u
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git commit -m "Suppression du fichier de 10 Mo"
+(Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum
+```
+
+Résultat :
+
+```
+10524309
+```
+
+Puis :
+
+```
+"{0:N2} Mo" -f ((Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
+```
+
+Résultat :
+
+```
+10,04 Mo
+```
+
+La taille de `.git` est donc passée de **0,03 Mo avant l'ajout** à **10,04 Mo après le commit**.
+
+## Suppression du fichier
+
+Après avoir ajouté le fichier dans un premier commit, j'ai supprimé le fichier du répertoire de travail avec :
+
+```
+Remove-Item gros_fichier.bin
+```
+
+J'ai ensuite vérifié l'état du dépôt avec :
+
+```
+git status
+```
+
+J'ai obtenu :
+
+```
 On branch branche-fille
-nothing to commit, working tree clean
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    gros_fichier.bin
+
+no changes added to commit (use "git add" and/or "git commit -a")
 ```
 
-Cette commande n'a pas créé de commit car le fichier n'avait pas encore été supprimé du répertoire de travail.
+Cela montre que Git a bien détecté la suppression du fichier, mais que cette modification n'était pas encore préparée pour le commit.
 
-J'ai ensuite mesuré la taille de `.git` :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> (Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum
-85554
-```
-
-Puis en Mo :
+J'ai donc utilisé :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> "{0:N2} Mo" -f ((Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
-0,08 Mo
+git add -u
 ```
 
-Le fichier faisait pourtant 10 Mo, mais `.git` ne faisait que `0,08 Mo`. Le fichier créé avec `fsutil` était principalement composé de zéros, ce qui permettait à Git de le compresser fortement.
-
-## Reprise de l'expérience avec des données aléatoires
-
-J'ai donc repris l'expérience afin que le fichier contienne des données aléatoires et soit beaucoup moins compressible.
-
-J'ai d'abord annulé les deux commits précédents :
+Puis j'ai créé le deuxième commit avec :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git reset --hard HEAD~2
-HEAD is now at b5868ac Modification sur la branche fille 2
+git commit -m "Suppression du fichier de 10 Mo"
 ```
 
-J'ai ensuite essayé de générer les données aléatoires avec :
+Le résultat obtenu est :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> $bytes = New-Object byte[] 10MB
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
-```
-
-Cette commande a produit l'erreur suivante :
-
-```
-Échec lors de l’appel de la méthode, car
-[System.Security.Cryptography.RandomNumberGenerator] ne contient pas de méthode nommée «
-Fill».
-```
-
-J'ai donc utilisé une autre méthode compatible avec mon environnement PowerShell :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> $bytes = New-Object byte[] 10MB
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> $rng.GetBytes($bytes)
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> $rng.Dispose()
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> [System.IO.File]::WriteAllBytes("gros_fichier.bin", $bytes)
-```
-
-J'ai vérifié la taille du nouveau fichier :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> Get-Item gros_fichier.bin | Select-Object Name,Length
-
-Name               Length
-----               ------
-gros_fichier.bin 10485760
-```
-
-Le fichier faisait toujours exactement `10 485 760` octets, mais il contenait maintenant des données aléatoires.
-
-## Commit du fichier
-
-J'ai ajouté le fichier puis effectué le commit :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git add gros_fichier.bin
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git commit -m "Ajout volontaire d'un fichier de 10 Mo"
-[branche-fille 4db1a0f] Ajout volontaire d'un fichier de 10 Mo
- 1 file changed, 0 insertions(+), 0 deletions(-)
- create mode 100644 gros_fichier.bin
-```
-
-## Suppression du fichier et deuxième commit
-
-J'ai ensuite supprimé le fichier :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> Remove-Item gros_fichier.bin
-```
-
-J'ai enregistré cette suppression dans le deuxième commit :
-
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git add -u
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> git commit -m "Suppression du fichier de 10 Mo"
-[branche-fille fae062f] Suppression du fichier de 10 Mo
+[branche-fille 1dec404] Suppression du fichier de 10 Mo
  1 file changed, 0 insertions(+), 0 deletions(-)
  delete mode 100644 gros_fichier.bin
 ```
 
-## Mesure de la taille de `.git`
+Le fichier a donc été supprimé de l'état actuel du projet.
 
-Après les deux commits, j'ai mesuré la taille du dossier `.git` :
+## Mesure après la suppression
 
-```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> (Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum
-10577539
-```
-
-J'ai ensuite converti cette taille en mégaoctets :
+Après le commit de suppression, j'ai mesuré une dernière fois la taille de `.git` avec :
 
 ```
-PS C:\Users\cloth\OneDrive\Bureau\CHAP2 M.Teuguia\ani-2053\depot-test> "{0:N2} Mo" -f ((Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
-10,09 Mo
+(Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum
 ```
+
+J'ai obtenu :
+
+```
+10524769
+```
+
+Puis :
+
+```
+"{0:N2} Mo" -f ((Get-ChildItem .git -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
+```
+
+Résultat :
+
+```
+10,04 Mo
+```
+
+Avant l'expérience, `.git` occupait seulement **0,03 Mo**. Après l'ajout du fichier de 10 Mo, sa taille est passée à **10,04 Mo**.
+
+Après la suppression du fichier et la création du deuxième commit, la taille est restée pratiquement identique : **10,04 Mo**.
+
+La différence entre la mesure après l'ajout et celle après la suppression est seulement de :
+
+```
+10524769 - 10524309 = 460 octets
+```
+
+Cette faible différence ne correspond pas à la suppression des 10 Mo du fichier. Elle provient des informations supplémentaires enregistrées par Git pour le nouveau commit.
+
+## Conclusion
+
+Cette manipulation montre que supprimer un fichier ne supprime pas automatiquement son contenu de l'historique Git.
+
+Le fichier `gros_fichier.bin` a d'abord été enregistré dans le commit `d3fe3c4`. Même après sa suppression dans le commit `1dec404`, les données du premier commit restent présentes dans l'historique du dépôt.
+
+C'est pourquoi `.git` passe de **0,03 Mo avant l'expérience** à environ **10,04 Mo après l'ajout**, puis reste à environ **10,04 Mo après la suppression**.
+
+La suppression permet donc de retirer le fichier de la version actuelle du projet, mais elle ne permet pas de récupérer immédiatement l'espace occupé par sa version précédente dans l'historique Git.
