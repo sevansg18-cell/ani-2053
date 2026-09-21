@@ -14,7 +14,7 @@ Je me suis placé dans ce dossier avec PowerShell :
 PS C:\Users\Administrator\OneDrive\Desktop\CHAP2 M.Teuguia> cd ani-2053
 ```
 
-J'ai ensuite vérifié l'état du dépôt :
+J'ai vérifié l'état du dépôt :
 
 ```
 PS C:\Users\Administrator\OneDrive\Desktop\CHAP2 M.Teuguia\ani-2053> git status
@@ -31,15 +31,38 @@ nothing added to commit but untracked files present (use "git add" to track)
 
 Le dépôt est bien sur la branche `main`.
 
-## 2. Affichage du graphe avec Git
+## 2. Graphe réalisé avant la vérification avec Git
 
-J'ai utilisé la commande :
+Avant d'afficher le graphe avec Git, j'ai observé l'historique connu du travail réalisé avec les deux clones.
+
+J'ai donc dessiné au tableau le graphe que je pensais obtenir :
+
+```
+b778ee1
+   |
+   +---- 3b8b0a2 ----\
+   |                  \
+   +---- cd2f54b ------ f1a104f
+```
+
+J'ai interprété ce dessin de la manière suivante :
+
+* `b778ee1` est le point commun de départ ;
+* `3b8b0a2` représente une modification réalisée depuis `clone1` ;
+* `cd2f54b` représente une modification réalisée depuis `clone2` ;
+* `f1a104f` doit réunir les deux lignes lors de la fusion.
+
+Ce dessin constitue donc mon hypothèse avant la vérification avec Git.
+
+## 3. Vérification avec Git
+
+Pour vérifier si le dessin correspondait réellement à l'historique du dépôt, j'ai utilisé :
 
 ```
 git log --oneline --graph --all
 ```
 
-Le résultat obtenu est :
+J'ai obtenu :
 
 ```
 * 7b54462 (HEAD -> main, origin/main, origin/HEAD) exo11
@@ -61,126 +84,38 @@ Le résultat obtenu est :
 * | cd2f54b Modification depuis clone2
 |/
 * b778ee1 exo5
-* 170e687 exo4
-* eba6675 exo3
-* 9d291a8 exo4
-* 29eee28 exo5
-* ba51e55 exo3
-* 472b0c5 exo2
-* febe87b exo1
-| * a9f66ac (origin/branche-mesure-2) Revert "Commit a annuler"
-| * d3865f6 Commit a annuler
-| * b652c9e Troisième commit de mesure
-| * d0348ed Deuxième commit de mesure
-| * 840dd48 Premier commit de mesure
-| * 3f4d956 message
-| * d491c05 Ajout d'une présentation de Git
-| * a2f8d9c Ajout du fichier de réponse
-| * a3de3bd Ajout de l'exercice 2
-| * 34ce519 Modification du README
-| * db88553 Ajout de l'exercice1
-|/
-* 2476454 Initial commit
 ```
 
-## 3. Partie du graphe étudiée
+## 4. Comparaison entre mon dessin et le graphe de Git
 
-Pour montrer clairement une divergence puis une fusion, je retiens cette partie :
+La sortie de Git confirme le dessin réalisé au préalable.
 
-```
-*   f1a104f Résolution du conflit dans README
-|\
-| * 3b8b0a2 Modification depuis clone1
-* | cd2f54b Modification depuis clone2
-|/
-* b778ee1 exo5
-```
-
-On voit ici deux lignes de développement qui partent de `b778ee1`, puis qui sont réunies par le commit de fusion `f1a104f`.
-
-## 4. Graphe à dessiner au tableau
-
-Le dessin peut être représenté simplement comme ceci :
+On retrouve bien :
 
 ```
                  f1a104f
                     |
-              Fusion / Réunion
-                /       \
-        3b8b0a2         cd2f54b
-        clone1           clone2
-            \             /
-             \           /
-               b778ee1
-              Point commun
+                  /   \
+           3b8b0a2   cd2f54b
+               \       /
+                 b778ee1
 ```
 
-Une autre manière de le dessiner, en suivant l'ordre des commits, est :
+Les trois éléments principaux correspondent :
 
 ```
-b778ee1
-   |
-   +---- 3b8b0a2 ----\
-   |                  \
-   +---- cd2f54b ------ f1a104f
+b778ee1  → point commun
+3b8b0a2  → développement depuis clone1
+cd2f54b  → développement depuis clone2
+f1a104f  → fusion des deux historiques
 ```
 
-## 5. Correspondance avec `git log --graph`
+Les caractères `|\` montrent la séparation des deux lignes et `|/` leur réunion.
 
-Le commit `b778ee1` dans le dessin correspond à :
+## 5. Conclusion
 
-```
-* b778ee1 exo5
-```
+Le dessin réalisé avant l'utilisation de `git log --graph` correspond à l'historique réel du dépôt. La vérification avec Git montre donc que le raisonnement effectué à partir des commits était correct.
 
-C'est le point commun avant la séparation des deux lignes de développement.
+Cet exemple permet de visualiser une situation de **divergence puis de fusion** : à partir du commit commun `b778ee1`, deux développements différents sont réalisés dans `clone1` et `clone2`, puis ils sont réunis par le commit `f1a104f`, intitulé `Résolution du conflit dans README`.
 
-Le commit `3b8b0a2` correspond à :
-
-```
-| * 3b8b0a2 Modification depuis clone1
-```
-
-Il représente une des deux lignes de développement.
-
-Le commit `cd2f54b` correspond à :
-
-```
-* | cd2f54b Modification depuis clone2
-```
-
-Il représente l'autre ligne de développement.
-
-Le commit `f1a104f` correspond à :
-
-```
-*   f1a104f Résolution du conflit dans README
-```
-
-C'est le commit de fusion qui réunit les deux historiques.
-
-Les caractères :
-
-```
-|\
-```
-
-montrent la séparation des deux historiques au niveau de la fusion.
-
-Les caractères :
-
-```
-|/
-```
-
-montrent que les deux lignes sont ensuite réunies dans l'historique commun.
-
-## 6. Conclusion
-
-Le graphe dessiné au tableau correspond donc directement au graphe obtenu avec :
-
-```
-git log --oneline --graph --all
-```
-
-Le dépôt réel montre bien
+Le graphe de Git permet ainsi de vérifier visuellement l'organisation réelle des commits et de comparer cette organisation avec le graphe que j'avais prévu avant la vérification.
