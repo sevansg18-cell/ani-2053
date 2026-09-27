@@ -1,105 +1,151 @@
-# Exercice — Sept zones et changement de curseur
+# Exercice — Afficher l'état du programme dans le titre
 
-## 1. Vérification de l'API
+## 1. Objectif
 
-Avant de modifier le programme, j'ai d'abord vérifié dans les fichiers du projet les éléments nécessaires pour gérer le curseur et les mouvements de la souris.
+L'objectif est d'afficher dans le titre de la fenêtre :
 
-La recherche a été effectuée depuis le projet :
+* le nom du document ;
+* `*` lorsque le document est modifié ;
+* la taille courante de la fenêtre.
 
-```
-PS C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow>
-```
+Le titre doit être mis à jour uniquement lorsque l'une de ces informations change, et non à chaque image.
 
-Commande utilisée :
-
-```
-Get-ChildItem -Recurse -File | Select-String -Pattern "Cursor|Mouse|NkMouse" | Select-Object Path, LineNumber, Line
-```
-
-Cette vérification m'a permis d'identifier notamment :
-
-* `NkCursorType` dans `NkWindow.h`
-* les différents types de curseurs :
-
-  * `Arrow`
-  * `TextInput`
-  * `Hand`
-  * `ResizeNS`
-  * `ResizeWE`
-  * `ResizeNWSE`
-  * `ResizeNESW`
-* la méthode `SetCursor()`
-* l'événement `NkMouseMoveEvent`
-* les méthodes `GetX()` et `GetY()` permettant de récupérer la position de la souris.
-
-Les fichiers vérifiés se trouvent notamment dans :
+Exemple :
 
 ```
-C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\include\NKWindow\Core\NkWindow.h
+MaFenetre - 1278 x 720
+MaFenetre* - 1278 x 720
 ```
 
-et :
+## 2. Implémentation
+
+J'ai utilisé une variable pour conserver l'état du document :
 
 ```
-C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\include\NKEvent\NkMouseEvent.h
+bool documentModifie = false;
 ```
 
-## 2. Découpage de la fenêtre en sept zones
-
-La fenêtre utilisée est de taille initiale :
+Une fonction lambda permet de construire et d'appliquer le titre :
 
 ```
-1280 x 720
+auto mettreAJourTitre = [&]() {
+    auto taille = window.GetSize();
+
+    NkString titre = cfg.title;
+
+    if (documentModifie)
+        titre += "*";
+
+    titre += " - ";
+    titre += NkString::Fmtf("%u x %u", taille.x, taille.y);
+
+    window.SetTitle(titre);
+};
 ```
 
-J'ai ensuite divisé la fenêtre en sept zones à partir des coordonnées `X` et `Y` de la souris.
-
-La répartition utilisée est :
+La taille est récupérée avec :
 
 ```
-Zone 1 : y < 120
-Zone 2 : y >= 120 et y < 320, x < 426
-Zone 3 : y >= 120 et y < 320, 426 <= x < 853
-Zone 4 : y >= 120 et y < 320, x >= 853
-Zone 5 : y >= 320, x < 426
-Zone 6 : y >= 320, 426 <= x < 853
-Zone 7 : y >= 320, x >= 853
+window.GetSize();
 ```
 
-Chaque zone possède un curseur différent :
+Cela permet d'afficher la taille réelle de la fenêtre plutôt que seulement la taille configurée initialement.
+
+
+## 3. Mise à jour du titre
+
+La fonction est appelée une première fois au démarrage :
 
 ```
-Zone 1 → Arrow
-Zone 2 → TextInput
-Zone 3 → Hand
-Zone 4 → ResizeNS
-Zone 5 → ResizeWE
-Zone 6 → ResizeNWSE
-Zone 7 → ResizeNESW
+mettreAJourTitre();
 ```
 
-## 3. Résultat du test
+Elle est ensuite appelée uniquement lorsqu'un événement nécessite une modification du titre.
 
-J'ai déplacé la souris dans les différentes parties de la fenêtre afin de vérifier les sept zones.
+### Redimensionnement
 
-Les sept formes de curseur sont bien obtenues et changent lorsque la souris passe d'une zone à une autre.
+```
+if (e->Is<NkWindowResizeEvent>())
+{
+    mettreAJourTitre();
+}
+```
 
-La première partie de l'exercice est donc fonctionnelle.
+La nouvelle largeur et la nouvelle hauteur sont donc immédiatement affichées.
 
-## 4. Curseur défini une seule fois au démarrage
+### Modification du document
 
-J'ai ensuite effectué le deuxième test en appelant `SetCursor()` une seule fois au démarrage de la fenêtre, sans modifier le curseur lors des déplacements de la souris.
+Pour tester l'état modifié, une pression sur une touche est utilisée :
 
-Dans ce cas, le programme ne recalcule plus la zone survolée et ne demande plus de changement de curseur pendant le déplacement de la souris.
+```
+if (e->Is<NkKeyPressEvent>())
+{
+    documentModifie = true;
+    mettreAJourTitre();
+}
+```
 
-Ce test montre que le changement automatique entre les sept curseurs dépend du traitement de `NkMouseMoveEvent` et de l'appel correspondant à `SetCursor()`.
+Le `*` apparaît alors dans le titre.
 
-## 5. Conclusion
 
-J'ai d'abord vérifié l'API disponible dans les fichiers du projet avant de réaliser l'exercice.
+## 4. Difficultés rencontrées
 
-Les sept types de curseurs disponibles ont été identifiés dans `NkWindow.h`, puis les coordonnées de la souris ont été récupérées avec `NkMouseMoveEvent`, `GetX()` et `GetY()`.
+### Taille réelle
 
-Le découpage de la fenêtre en sept zones permet ensuite d'associer un curseur différent à chaque zone.
+La taille configurée était :
 
-Les sept curseurs ont été testés avec succès.
+```
+cfg.width = 1280;
+cfg.height = 720;
+```
+
+mais `GetSize()` a retourné lors d'un test :
+
+```text
+1278 x 720
+```
+
+J'ai donc utilisé `window.GetSize()` afin d'afficher la taille réellement obtenue par la fenêtre.
+
+
+## 5. Tests
+
+### Démarrage
+
+Le titre affiché était :
+
+```
+MaFenetre - 1278 x 720
+```
+
+### Modification
+
+Après une pression sur une touche :
+
+```
+MaFenetre* - 1278 x 720
+```
+
+Le `*` apparaît correctement.
+
+### Redimensionnement
+
+Après avoir redimensionné la fenêtre, la taille affichée dans le titre change également.
+
+Par exemple :
+
+```text
+MaFenetre* - 800 x 600
+```
+
+Ces tests montrent que le titre est bien actualisé lors des événements concernés.
+
+
+
+## 6. Conclusion
+
+L'exercice est fonctionnel.
+
+Le titre affiche correctement le nom du document, l'état de modification avec `*` et la taille actuelle de la fenêtre. Les mises à jour sont déclenchées par les événements concernés plutôt qu'à chaque image.
+
+Les principales difficultés rencontrées concernaient la conservation de l'état de `documentModifie`, le placement de `return 0` et l'utilisation de la taille réelle retournée par `GetSize()`.
