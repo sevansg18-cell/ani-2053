@@ -1,146 +1,217 @@
-# Ouverture des 7 fenetres
+# Ouverture des 7 fenêtres
 
-Pour cet exercice j'ai d'abord ajoute les 7 droits de l'utilisateur dans mon code:
+Pour cet exercice, j'ai commencé par identifier les droits disponibles dans `NkWindowConfig`.
+
+Les sept droits testés sont :
+
+1. **`resizable`** : droit de redimensionner la fenêtre.
+2. **`movable`** : droit de déplacer la fenêtre.
+3. **`closable`** : droit de fermer la fenêtre.
+4. **`minimizable`** : droit de minimiser la fenêtre.
+5. **`maximizable`** : droit de maximiser la fenêtre.
+6. **`canFullscreen`** : droit de passer la fenêtre en plein écran.
+7. **`frame`** : présence du cadre de la fenêtre.
+
+Dans mon code, ces droits correspondent à :
 
 ```
-1. droit de redimensionner la fenêtre.
-2. droit de déplacer la fenêtre.
-3. droit de fermer la fenêtre.
-4. droit de minimiser la fenêtre.
-5. droit de maximiser la fenêtre.
-6. droit de passer en plein écran.
-7. droit/comportement modal de la fenêtre, c'est-à-dire qu'elle peut bloquer les interactions avec les autres fenêtres.
-```
-En code ces 7 droits sont:
-
-```
-cfg.resizable 
-cfg.movable 
+cfg.resizable
+cfg.movable
 cfg.closable
 cfg.minimizable
 cfg.maximizable
 cfg.canFullscreen
-cfg.modal
-
+cfg.frame
 ```
 
-C'est la raison pour laquelle mon code donne:
+Au départ, les sept droits sont activés :
 
 ```
-#include "NKWindow/NKWindow.h"
-#include "NKWindow/NKMain.h"
-#include "NKLogger/NkSink.h"
-#include "NKTime/NkTime.h"
-#include "NKTime/NkChrono.h"
-
-#include "NKEvent/NkWindowEvent.h"
-#include "NKEvent/NkKeyboardEvent.h"
-
-using namespace nkentseu;
-
-int nkmain(const NkEntryState &state) {
-    NkWindowConfig cfg;
-    cfg.title  = "Ma fenetre";
-    cfg.width  = 1280;
-    cfg.height = 720;
-    cfg.resizable = true;
-    cfg.movable = true;
-    cfg.closable =  true;
-    cfg.minimizable = true;
-    cfg.maximizable = true;
-    cfg.canFullscreen = true;
-    cfg.modal = true;
-
-    NkWindow window(cfg);
-    if (!window.IsOpen()) {
-        logger.Error("[app] creation fenetre echouee");
-        return -1;
-    }
-    while (window.IsOpen()) { /* les evenements arrivent ici */ }
-    return 0;
-}
+cfg.resizable = true;
+cfg.movable = true;
+cfg.closable = true;
+cfg.minimizable = true;
+cfg.maximizable = true;
+cfg.canFullscreen = true;
+cfg.frame = true;
 ```
-Pour l'instant les 7 droits sont actives.
 
-# Desactivation des droits
-## resizable
-J'ai mis `cfg.resizable` a false, la fenetre s'est ouverte normalement a `12080 x 720`.
+J'ai ensuite désactivé **un seul droit à la fois** afin d'observer précisément son effet.
 
-Je pouvais toujours la deplacer, la minimiser et la maximiser mais je ne peux plus la modifier en largeur ou en hauteur.
+# Désactivation des droits
 
-## movable
+## 1. `resizable`
 
-J'ai desactive `cfg.movable`
+Pour ce test, j'ai désactivé uniquement le droit de redimensionnement :
 
 ```
-#include "NKWindow/NKWindow.h"
-#include "NKWindow/NKMain.h"
-#include "NKLogger/NkSink.h"
-#include "NKTime/NkTime.h"
-#include "NKTime/NkChrono.h"
-
-#include "NKEvent/NkWindowEvent.h"
-#include "NKEvent/NkKeyboardEvent.h"
-
-using namespace nkentseu;
-
-int nkmain(const NkEntryState &state) {
-    NkWindowConfig cfg;
-    cfg.title  = "Ma fenetre";
-    cfg.width  = 1280;
-    cfg.height = 720;
-    cfg.resizable = true;
-    cfg.movable = false;
-    cfg.closable =  true;
-    cfg.minimizable = true;
-    cfg.maximizable = true;
-    cfg.canFullscreen = true;
-    cfg.modal = true;
-
-    NkWindow window(cfg);
-    if (!window.IsOpen()) {
-        logger.Error("[app] creation fenetre echouee");
-        return -1;
-    }
-    while (window.IsOpen()) { /* les evenements arrivent ici */ }
-    return 0;
-}
+cfg.resizable = false;
 ```
-**Mais lorsque j'execute j'arrive toujours a faire bouger la fenetre.**
 
-## closable
+Les autres droits sont restés activés.
 
-j'ai annule ce droit pour empecher l'utilisateur de fermer la fenetre.
+La fenêtre s'est ouverte avec une taille de **1280 × 720**.
+
+J'ai constaté que :
+
+* la fenêtre pouvait toujours être déplacée ;
+* elle pouvait toujours être minimisée ;
+* elle pouvait toujours être maximisée ;
+* mais je ne pouvais plus modifier sa largeur ou sa hauteur en utilisant les bords ou les coins de la fenêtre.
+
+### Conclusion
+
+Dans ce test, `resizable = false` empêche bien le redimensionnement de la fenêtre.
+
+
+## 2. `movable`
+
+Pour ce test, j'ai désactivé uniquement :
+
+```
+cfg.movable = false;
+```
+
+Les autres droits sont restés à `true`.
+
+J'ai ensuite essayé de déplacer la fenêtre en faisant glisser sa barre de titre.
+
+### Observation
+
+Malgré :
+
+```
+cfg.movable = false;
+```
+
+j'ai toujours réussi à déplacer la fenêtre.
+
+### Conclusion
+
+Le droit `movable` est bien présent dans `NkWindowConfig`, mais sa désactivation n'empêche pas le déplacement dans l'implémentation Windows utilisée pour cet exercice.
+
+Il s'agit donc d'une différence entre le comportement attendu par l'énoncé et le comportement réellement observé dans le moteur.
+
+
+## 3. `closable`
+
+J'ai ensuite désactivé uniquement le droit de fermeture :
 
 ```
 cfg.closable = false;
 ```
-La fenetre s'ouvrait normalement la taille etait respecter, je pouvais maximiser et minimaliser mais le bouton rouge pour fermer la fenetre etait toujours actif. Je pouvais toujours fermer la fenetre.
 
-## minimalize
+La fenêtre s'est ouverte normalement et les autres fonctionnalités sont restées disponibles.
 
-Pour ca j'ai remis closable a `true` et mis minimalize a `false` 
+### Observation
+
+Le bouton rouge de fermeture était toujours présent et actif.
+
+J'ai donc pu fermer la fenêtre malgré :
 
 ```
- cfg.minimizable = false;
- ```
-J'ai toujours reussi a minimaliser la fenetre. Pourtant elle est cense reste agrandi jusqu'au bout.
+cfg.closable = false;
+```
 
-## maximalize
+### Conclusion
 
-Lorsque j'ouvre la fenetre la touche pour maximiser n'est pas fonctionnel mais lorsque je minimalise lorsque je clique sur la fenetre dans la barre de tache elle s'agrandi.
+La propriété `closable` n'empêche pas la fermeture de la fenêtre dans l'implémentation Windows utilisée.
 
-## canFullscreen
 
-J'ai mis a `false` mais je n'arrive pas a passer la fenetre.
+## 4. `minimizable`
 
-## modal
+Pour ce test, j'ai remis :
 
-Ici modal ne signifie pas "bouton modal". Cela définit le comportement de la fenêtre vis-à-vis des autres fenêtres. la fenêtre est modale : lorsqu'elle est active, elle est destinée à bloquer les interactions avec les autres fenêtres concernées.
-la fenêtre devient non modale :
+```
+cfg.closable = true;
+```
 
-elle peut coexister avec d'autres fenêtres ;
-l'utilisateur peut normalement interagir avec les autres fenêtres ;
-elle ne doit pas imposer le blocage propre à une fenêtre modale.
+puis désactivé uniquement :
 
-**Mais elle impose le blocage propre a une fenetre modale**
+```
+cfg.minimizable = false;
+```
+
+### Observation
+
+Malgré la désactivation de `minimizable`, j'ai toujours réussi à minimiser la fenêtre.
+
+### Conclusion
+
+La propriété `minimizable` n'est pas effectivement appliquée par l'implémentation Windows utilisée.
+
+
+## 5. `maximizable`
+
+Pour ce test, j'ai désactivé uniquement :
+
+```
+cfg.maximizable = false;
+```
+
+### Observation
+
+Le bouton permettant de maximiser la fenêtre n'était pas fonctionnel lors de l'ouverture normale.
+
+Cependant, après avoir minimisé la fenêtre puis cliqué sur celle-ci depuis la barre des tâches, la fenêtre pouvait de nouveau s'agrandir.
+
+### Conclusion
+
+Le comportement observé ne correspond donc pas à une désactivation complète et uniforme de la maximisation. Cela montre que le comportement dépend également de la gestion native de la fenêtre par Windows.
+
+
+## 6. `canFullscreen`
+
+J'ai désactivé :
+
+```
+cfg.canFullscreen = false;
+```
+
+### Observation
+
+Je n'ai pas réussi à faire passer la fenêtre en plein écran.
+
+### Conclusion
+
+Dans mon test, la désactivation de `canFullscreen` empêche le passage en plein écran.
+
+
+## 7. `frame`
+
+Pour le dernier test, j'ai désactivé le cadre de la fenêtre :
+
+```
+cfg.frame = false;
+```
+
+### Observation
+
+La fenêtre est créée sans son cadre natif habituel.
+
+Les éléments normalement fournis par le cadre de la fenêtre, comme la barre de titre et les boutons natifs, ne sont donc plus présentés de la même manière.
+
+### Conclusion
+
+Contrairement à plusieurs autres propriétés testées, le réglage du cadre est effectivement pris en compte par l'implémentation Windows.
+
+# Remarque sur `modal`
+
+J'avais initialement considéré `modal` comme le septième droit :
+
+```
+cfg.modal = true;
+```
+
+Cependant, après vérification, `modal` ne correspond pas au septième droit demandé dans cet exercice.
+
+`modal` décrit le comportement modal de la fenêtre et ne doit donc pas être utilisé pour remplacer `frame` dans les sept tests.
+
+Lors de mon test, j'ai également constaté que la modification de `modal` ne produisait pas le blocage des interactions que j'attendais.
+
+Je ne retiens donc pas `modal` comme l'un des sept droits de cet exercice.
+
+# conclusion generale
+
+Cette expérience montre que les sept propriétés existent dans la configuration de `NkWindow`, mais qu'elles ne sont pas toutes appliquées de la même manière par l'implémentation Windows actuelle.
+
