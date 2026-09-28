@@ -1,220 +1,259 @@
-# Test de la taille minimale de la fenêtre
+# Test de la taille de la fenêtre, de la cible de rendu et du facteur d'échelle
 
-## Objectif
+Pour cet exercice, j'ai voulu vérifier concrètement les informations que `NkWindow` me permet de récupérer.
 
-L’objectif de cet exercice est de vérifier le fonctionnement de la taille minimale d’une fenêtre.
+J'ai donc fait un test pour afficher côte à côte :
 
-L’énoncé demande de :
+* la taille de ma fenêtre ;
+* la taille de ma cible de rendu ;
+* le facteur d'échelle.
 
-1. fixer une taille minimale ;
-2. essayer de réduire la fenêtre en dessous de cette taille ;
-3. constater que la fenêtre ne peut pas être réduite davantage ;
-4. retirer la taille minimale ;
-5. recommencer les manipulations ;
-6. déterminer et noter la plus petite taille que le système accepte.
+J'ai ensuite exécuté mon programme pour voir les valeurs réellement retournées.
 
----
+## Mon projet
 
-## 1. Fenêtre utilisée pour les tests
-
-La fenêtre utilisée dans le programme est configurée comme une fenêtre redimensionnable :
+Mon projet **FirstWindow** se trouve dans :
 
 ```
-NkWindowConfig cfg;
-cfg.title  = "Ma fenetre";
-cfg.width  = 100;
-cfg.height = 50;
-cfg.resizable = true;
-cfg.movable = true;
-cfg.closable = false;
-cfg.minimizable = true;
-cfg.maximizable = true;
-cfg.canFullscreen = true;
-cfg.modal = true;
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow
 ```
 
-La ligne :
+J'ai travaillé dans le fichier :
 
 ```
-cfg.resizable = true;
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\Window\src\main.cpp
 ```
 
-est importante car elle permet de modifier la largeur et la hauteur de la fenêtre avec la souris.
-
----
-
-## 2. Première partie : fixer une taille minimale
-
-Pour réaliser la première partie de l’exercice, une taille minimale est fixée à :
-
-```cpp
-cfg.minSize = {800, 600};
-```
-
-La taille minimale imposée est donc de :
-
-**800 × 600 pixels**
-
-Le programme est ensuite lancé.
-
-J’essaie de réduire la fenêtre progressivement en dessous de **800 × 600**.
-
-### Observation
-
-Lorsque la fenêtre atteint **800 × 600**, il n’est plus possible de la réduire davantage.
-
-Même si j’essaie de déplacer la bordure de la fenêtre vers l’intérieur, elle conserve une taille minimale de **800 × 600**.
-
-Cela permet de vérifier que la propriété `minSize` impose bien une limite minimale au redimensionnement de la fenêtre.
-
----
-
-## 3. Retrait de la taille minimale
-
-Après ce premier test, la contrainte :
+Avant de modifier mon code, j'ai également vérifié les fonctions disponibles dans :
 
 ```
-cfg.minSize = {800, 600};
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\include\NKWindow\Core\NkWindow.h
 ```
 
-est retirée du programme.
+Cela m'a permis de retrouver les fonctions dont j'avais besoin pour faire le test.
 
-Le programme est recompilé puis relancé.
+## Les fonctions que j'ai utilisées
 
-L’objectif est maintenant de vérifier quelle est la plus petite taille que le système accepte lorsqu’aucune taille minimale n’est explicitement définie dans la configuration.
-
----
-
-## 4. Réduction progressive de la fenêtre
-
-J’ai effectué six tests en réduisant progressivement la taille de la fenêtre.
-
-### Test 1 : 800 × 600
-
-La fenêtre est réduite à :
-
-**800 × 600 pixels**
-
-Cette taille est acceptée.
-
----
-
-### Test 2 : 600 × 400
-
-La fenêtre est ensuite réduite à :
-
-**600 × 400 pixels**
-
-Cette taille est également acceptée.
-
----
-
-### Test 3 : 400 × 200
-
-La fenêtre est ensuite réduite à :
-
-**400 × 200 pixels**
-
-Cette taille est encore acceptée.
-
----
-
-### Test 4 : 200 × 100
-
-La fenêtre est ensuite réduite à :
-
-**200 × 100 pixels**
-
-Cette taille est également acceptée.
-
----
-
-### Test 5 : 100 × 50
-
-La fenêtre est ensuite réduite à :
-
-**100 × 50 pixels**
-
-Cette taille est acceptée.
-
-La fenêtre atteint donc cette dimension minimale lors de mes essais.
-
----
-
-### Test 6 : 50 × 20
-
-Enfin, j’essaie de réduire la fenêtre à :
-
-**50 × 20 pixels**
-
-Cependant, la fenêtre ne devient pas plus petite.
-
-Elle reste à :
-
-**100 × 50 pixels**
-
-La tentative de passer à **50 × 20** n'est donc pas prise en compte.
-
----
-
-## 5. Résumé des six tests
-
-Les tests réalisés sont les suivants :
-
-```text
-800 × 600  → accepté
-600 × 400  → accepté
-400 × 200  → accepté
-200 × 100  → accepté
-100 × 50   → accepté
-50 × 20    → la fenêtre reste à 100 × 50
-```
-
-Le dernier test est important : même en essayant de réduire la fenêtre à **50 × 20**, sa taille reste de **100 × 50**.
-
----
-
-## 6. Plus petite taille observée
-
-La plus petite taille effectivement obtenue pendant les tests est :
-
-```text
-100 × 50 pixels
-```
-
-La tentative suivante, **50 × 20**, ne réduit pas davantage la fenêtre.
-
-On peut donc noter :
-
-**Plus petite taille acceptée : 100 × 50 pixels.**
-
----
-
-## 7. Conclusion
-
-La première partie de l’exercice montre qu’une taille minimale explicitement définie avec :
+Après avoir créé ma fenêtre avec :
 
 ```
-cfg.minSize = {800, 600};
+NkWindow window(cfg);
 ```
 
-empêche la fenêtre de devenir plus petite que **800 × 600 pixels**.
-
-Après avoir retiré cette contrainte, j’ai réalisé six tests de réduction :
+j'ai récupéré les trois informations avec :
 
 ```
-800 × 600
-600 × 400
-400 × 200
-200 × 100
-100 × 50
-50 × 20
+auto size = window.GetSize();
+auto displaySize = window.GetDisplaySize();
+float32 scale = window.GetDpiScale();
 ```
 
-Les cinq premières tailles sont atteintes, tandis que la dernière tentative, **50 × 20**, laisse la fenêtre à **100 × 50**.
+J'ai donc utilisé :
 
-La plus petite taille obtenue avec cette configuration et ce système est donc :
+```
+window.GetSize()
+```
 
-**100 × 50 pixels.**
+pour récupérer la taille de ma fenêtre.
 
-Cela montre qu'en l'absence de `minSize` explicite, le système de fenêtrage conserve tout de même une limite minimale de redimensionnement dans ce test.
+J'ai utilisé :
+
+```
+window.GetDisplaySize()
+```
+
+pour récupérer la taille de ma cible de rendu.
+
+Enfin, j'ai utilisé :
+
+```
+window.GetDpiScale()
+```
+
+pour récupérer le facteur d'échelle.
+
+## Le code que j'ai ajouté
+
+J'ai placé le test juste après la création de ma fenêtre :
+
+```
+NkWindow window(cfg);
+
+auto size = window.GetSize();
+auto displaySize = window.GetDisplaySize();
+float32 scale = window.GetDpiScale();
+```
+
+Ensuite, j'ai utilisé le logger pour afficher les trois résultats sur la même ligne :
+
+```
+logger.Info(
+    "Fenetre : {}x{} | Cible de rendu : {}x{} | Facteur d'echelle : {}",
+    size.x, size.y,
+    displaySize.x, displaySize.y,
+    scale
+);
+```
+
+J'ai choisi de les afficher sur une seule ligne pour pouvoir les comparer directement.
+
+La partie complète de mon code est donc :
+
+```
+auto size = window.GetSize();
+auto displaySize = window.GetDisplaySize();
+float32 scale = window.GetDpiScale();
+
+logger.Info(
+    "Fenetre : {}x{} | Cible de rendu : {}x{} | Facteur d'echelle : {}",
+    size.x, size.y,
+    displaySize.x, displaySize.y,
+    scale
+);
+```
+
+## La configuration de ma fenêtre
+
+Dans mon programme, j'ai configuré ma fenêtre avec :
+
+```
+cfg.width = 800;
+cfg.height = 600;
+```
+
+Puis j'ai créé la fenêtre avec :
+
+```
+NkWindow window(cfg);
+```
+
+Je voulais ensuite vérifier les valeurs réellement retournées par la fenêtre avec `GetSize()`, `GetDisplaySize()` et `GetDpiScale()`.
+
+## J'ai compilé et exécuté mon programme
+
+Je me suis placé dans le dossier de mon projet :
+
+```
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow
+```
+
+J'ai d'abord compilé avec :
+
+```
+PS C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow> jenga build
+```
+
+Puis j'ai lancé mon programme avec :
+
+```
+PS C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow> jenga run
+```
+
+## Le résultat que j'ai obtenu
+
+Après l'exécution, mon programme a affiché :
+
+```
+Window: 798x798 | Display: 798x798 | DPI Scale: 798
+```
+
+J'ai donc obtenu les valeurs suivantes :
+
+```
+Taille de la fenêtre       : 798 x 798
+Taille de la cible de rendu: 798 x 798
+Facteur d'échelle          : 798
+```
+
+J'ai bien obtenu la même valeur pour la taille de la fenêtre et pour la taille de la cible de rendu :
+
+```
+798 x 798
+```
+
+## Comparaison avec ma configuration
+
+Au départ, j'avais écrit dans ma configuration :
+
+```
+cfg.width = 800;
+cfg.height = 600;
+```
+
+Mais lorsque j'ai récupéré la taille avec :
+
+```
+window.GetSize();
+```
+
+j'ai obtenu :
+
+```
+798 x 798
+```
+
+Cela m'a permis de constater que les valeurs que je configure avec `NkWindowConfig` et les valeurs que je récupère ensuite avec `GetSize()` ne sont pas forcément identiques.
+
+J'ai donc retenu les valeurs réellement retournées par mon programme plutôt que de simplement reprendre les valeurs `800` et `600` de ma configuration.
+
+## Vérification du facteur d'échelle
+
+J'ai également testé :
+
+```
+float32 scale = window.GetDpiScale();
+```
+
+Dans mon exécution, j'ai obtenu :
+
+```
+DPI Scale: 798
+```
+
+La valeur obtenue lors de mon test était donc différente de `1`.
+
+Je l'ai affichée directement dans le logger afin de pouvoir vérifier le résultat au moment de l'exécution.
+
+## Ce que j'ai vérifié avec ce test
+
+Avec ce petit test, j'ai pu vérifier directement les trois fonctions :
+
+```
+window.GetSize();
+window.GetDisplaySize();
+window.GetDpiScale();
+```
+
+J'ai ensuite comparé les valeurs obtenues :
+
+```
+GetSize()        → 798 x 798
+GetDisplaySize() → 798 x 798
+GetDpiScale()    → 798
+```
+
+Je n'ai donc pas utilisé de valeur supposée pour remplir mon compte rendu : j'ai repris les valeurs que mon propre programme m'a affichées.
+
+## Conclusion
+
+Pour réaliser cet exercice, j'ai commencé par vérifier les fonctions disponibles dans `NkWindow.h`.
+
+J'ai ensuite utilisé :
+
+```
+GetSize()
+GetDisplaySize()
+GetDpiScale()
+```
+
+pour récupérer les trois informations demandées.
+
+J'ai ajouté leur affichage avec `logger.Info()`, puis j'ai compilé et exécuté mon programme avec Jenga.
+
+Le résultat que j'ai réellement obtenu est :
+
+```
+Window: 798x798 | Display: 798x798 | DPI Scale: 798
+```
+
+Ce test m'a permis de voir directement les valeurs retournées par ma fenêtre et de les comparer avec les valeurs que j'avais utilisées dans sa configuration.
