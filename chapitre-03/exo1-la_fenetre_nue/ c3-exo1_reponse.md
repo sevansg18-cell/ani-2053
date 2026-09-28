@@ -1,217 +1,747 @@
-# Ouverture des 7 fenêtres
+# Fenetre nue
 
-Pour cet exercice, j'ai commencé par identifier les droits disponibles dans `NkWindowConfig`.
+## 1. Création du kit
 
-Les sept droits testés sont :
+Pour faire cet exercice, j'ai d'abord généré le kit dans un dossier sur mon bureau appelé **Mon workspace**.
 
-1. **`resizable`** : droit de redimensionner la fenêtre.
-2. **`movable`** : droit de déplacer la fenêtre.
-3. **`closable`** : droit de fermer la fenêtre.
-4. **`minimizable`** : droit de minimiser la fenêtre.
-5. **`maximizable`** : droit de maximiser la fenêtre.
-6. **`canFullscreen`** : droit de passer la fenêtre en plein écran.
-7. **`frame`** : présence du cadre de la fenêtre.
-
-Dans mon code, ces droits correspondent à :
+La commande utilisée pour générer le kit est :
 
 ```
-cfg.resizable
-cfg.movable
-cfg.closable
-cfg.minimizable
-cfg.maximizable
-cfg.canFullscreen
-cfg.frame
+jenga kit --target NKWindows --outpout "C:\Users\cloth\OneDrive\Bureau\Mon workspace" --platform windows --config Debug
 ```
 
-Au départ, les sept droits sont activés :
+Le dossier généré contient notamment :
 
 ```
-cfg.resizable = true;
-cfg.movable = true;
-cfg.closable = true;
-cfg.minimizable = true;
-cfg.maximizable = true;
-cfg.canFullscreen = true;
-cfg.frame = true;
+Mon workspace
+│
+├── include
+│   ├── NKContainer
+│   ├── ...
+│
+├── lib
+│   └── Debug-Windows
+│
+├── KIT.txt
+└── Monworkspace.jenga
 ```
 
-J'ai ensuite désactivé **un seul droit à la fois** afin d'observer précisément son effet.
-
-# Désactivation des droits
-
-## 1. `resizable`
-
-Pour ce test, j'ai désactivé uniquement le droit de redimensionnement :
+J'ai ensuite créé mon espace de travail dans :
 
 ```
-cfg.resizable = false;
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow
 ```
 
-Les autres droits sont restés activés.
+Dans ce dossier, on trouve notamment :
 
-La fenêtre s'est ouverte avec une taille de **1280 × 720**.
+```
+FirstWindow
+├── .jenga
+├── .jenga-typings
+├── Build
+├── Mon workspace
+├── Window
+├── .gitignore
+├── FirstWindow.jenga
+└── pyrightconfig.json
+```
 
-J'ai constaté que :
+# 2. Programme réalisé
 
-* la fenêtre pouvait toujours être déplacée ;
-* elle pouvait toujours être minimisée ;
-* elle pouvait toujours être maximisée ;
-* mais je ne pouvais plus modifier sa largeur ou sa hauteur en utilisant les bords ou les coins de la fenêtre.
+Pour commencer l'exercice, j'ai écrit un programme permettant de créer une fenêtre avec une taille initiale de **1280 × 720**.
+
+Le programme utilisé est le suivant :
+
+```
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
+#include "NKLogger/NkSink.h"
+#include "NKTime/NkTime.h"
+#include "NKTime/NkChrono.h"
+
+#include "NKEvent/NkWindowEvent.h"
+#include "NKEvent/NkKeyboardEvent.h"
+
+using namespace nkentseu;
+
+int nkmain(const NkEntryState &state) {
+    NkWindowConfig cfg;
+    cfg.title  = "Ma fenetre";
+    cfg.width  = 1280;
+    cfg.height = 720;
+
+    NkWindow window(cfg);
+    if (!window.IsOpen()) {
+        logger.Error("[app] creation fenetre echouee");
+        return -1;
+    }
+    while (window.IsOpen()) { /* les evenements arrivent ici */ }
+    return 0;
+}
+```
+
+Le programme contient **25 lignes physiques**, en comptant les lignes vides.
+
+
+# 3. Explication du programme ligne par ligne
+
+## Ligne 1
+
+```
+#include "NKWindow/NKWindow.h"
+```
+
+Cette ligne inclut le fichier d'en-tête principal de `NKWindow`.
+
+Il permet notamment d'utiliser les éléments nécessaires à la création et à la gestion de la fenêtre, comme `NkWindow` et `NkWindowConfig`.
+
+
+## Ligne 2
+
+```
+#include "NKWindow/NKMain.h"
+```
+
+Cette ligne inclut les éléments nécessaires au point d'entrée de l'application NKEntseu, notamment la fonction `nkmain`.
+
+
+## Ligne 3
+
+```
+#include "NKLogger/NkSink.h"
+```
+
+Cette ligne permet d'utiliser le système de journalisation.
+
+Elle est nécessaire dans mon programme car j'utilise ensuite :
+
+```
+logger.Error("[app] creation fenetre echouee");
+```
+
+pour signaler une erreur lorsque la création de la fenêtre échoue.
+
+Cette ligne n'est pas présente dans le code du chapitre fourni.
+
+
+## Ligne 4
+
+```
+#include "NKTime/NkTime.h"
+```
+
+Cette ligne inclut les fonctionnalités liées au temps.
+
+Elle n'est pas utilisée directement dans le programme actuel, mais elle faisait partie des inclusions utilisées dans mon environnement de travail.
+
+Cette ligne n'est pas présente dans le code du chapitre.
+
+
+## Ligne 5
+
+```
+#include "NKTime/NkChrono.h"
+```
+
+Cette ligne inclut les fonctionnalités de chronométrage liées au temps.
+
+Elle n'est pas utilisée directement dans ce programme.
+
+Elle n'est pas présente dans le code du chapitre.
+
+
+## Ligne 6
+
+Ligne vide.
+
+Elle sert uniquement à séparer les différents groupes d'inclusions afin de rendre le code plus lisible.
+
+
+## Ligne 7
+
+```
+#include "NKEvent/NkWindowEvent.h"
+```
+
+Cette ligne inclut les événements liés à la fenêtre.
+
+Elle permet notamment de disposer des types nécessaires à la gestion des événements de fenêtre dans les développements suivants.
+
+Elle n'est pas présente dans le code du chapitre.
+
+
+## Ligne 8
+
+```
+#include "NKEvent/NkKeyboardEvent.h"
+```
+
+Cette ligne inclut les événements liés au clavier.
+
+Elle n'est pas présente dans le code du chapitre.
+
+
+## Ligne 10
+
+```
+using namespace nkentseu;
+```
+
+Cette instruction permet d'utiliser les éléments du namespace `nkentseu` sans devoir écrire `nkentseu::` devant chaque élément.
+
+Elle est nécessaire pour pouvoir écrire directement :
+
+```
+NkWindow
+NkWindowConfig
+NkEntryState
+```
+
+## Ligne 12
+
+```
+int nkmain(const NkEntryState &state) {
+```
+
+Cette ligne définit le point d'entrée de l'application.
+
+La fonction `nkmain` reçoit l'état d'entrée `state` et retourne un entier.
+
+
+## Ligne 13
+
+```
+NkWindowConfig cfg;
+```
+
+Cette ligne crée une configuration de fenêtre appelée `cfg`.
+
+Cette configuration va ensuite recevoir le titre, la largeur et la hauteur de la fenêtre.
+
+
+## Ligne 14
+
+```
+cfg.title  = "Ma fenetre";
+```
+
+Cette ligne définit le titre de la fenêtre.
+
+Le titre affiché est :
+
+```
+Ma fenetre
+```
+
+
+## Ligne 15
+
+```
+cfg.width  = 1280;
+```
+
+Cette ligne définit la largeur initiale de la fenêtre à **1280 pixels**.
+
+
+## Ligne 16
+
+```
+cfg.height = 720;
+```
+
+Cette ligne définit la hauteur initiale de la fenêtre à **720 pixels**.
+
+La taille initiale demandée est donc :
+
+```
+1280 × 720
+```
+
+## Ligne 18
+
+```
+NkWindow window(cfg);
+```
+
+Cette ligne crée l'objet `window` à partir de la configuration `cfg`.
+
+La fenêtre est donc créée avec les paramètres définis précédemment.
+
+
+## Ligne 19
+
+```
+if (!window.IsOpen()) {
+```
+
+Cette condition vérifie si la fenêtre a bien été ouverte.
+
+Si `IsOpen()` retourne `false`, le `!` transforme cette valeur en `true` et le programme entre dans le bloc d'erreur.
+
+
+## Ligne 20
+
+```
+logger.Error("[app] creation fenetre echouee");
+```
+
+Si la fenêtre n'a pas pu être créée, cette ligne écrit un message d'erreur dans le système de logs.
+
+Le message est :
+
+```
+[app] creation fenetre echouee
+```
+
+
+## Ligne 21
+
+```
+return -1;
+```
+
+Cette ligne arrête le programme avec le code de retour `-1`.
+
+Elle indique que le programme s'est terminé à cause d'une erreur.
+
+
+## Ligne 22
+
+```
+}
+```
+
+Cette accolade ferme le bloc de la condition `if`.
+
+
+## Ligne 23
+
+```
+while (window.IsOpen()) { /* les evenements arrivent ici */ }
+```
+
+Cette boucle continue tant que la fenêtre est ouverte.
+
+Le commentaire indique que les événements doivent être traités à cet endroit.
+
+Dans le chapitre, cette boucle est présentée sur plusieurs lignes :
+
+```
+while (window.IsOpen()) {
+    // les evenements arrivent ici (chapitre 4)
+}
+```
+
+La logique est donc la même, mais la présentation est différente.
+
+
+## Ligne 24
+
+```
+return 0;
+```
+
+Cette ligne indique que le programme s'est terminé normalement.
+
+Le code `0` correspond à une fin sans erreur.
+
+
+## Ligne 25
+
+```
+}
+```
+
+Cette accolade ferme la fonction `nkmain`.
+
+
+# 4. Résultat obtenu
+
+Après avoir écrit le programme, j'ai utilisé Jenga pour compiler et exécuter le projet.
+
+La compilation et l'exécution permettent d'obtenir une fenêtre.
+
+La taille initiale demandée dans le programme est :
+
+```
+1280 × 720
+```
+
+Le programme vérifie également que la fenêtre a bien été créée avant d'entrer dans la boucle principale.
+
+
+# 5. Comparaison avec le code du chapitre
+
+Le code du chapitre fourni dans l'exercice est :
+
+```
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
+
+NKENTSEU_DEFINE_APP_DATA([]() {
+    NkAppData d{};
+    d.appName = "MaFenetre";
+    d.appVersion = "1.0.0";
+    return d;
+}());
+
+int nkmain(const NkEntryState &state) {
+
+    NkWindowConfig cfg;
+
+    cfg.title = "Ma fenetre";
+    cfg.width = 1280;
+    cfg.height = 720;
+
+    NkWindow window(cfg);
+
+    if (!window.IsOpen()) {
+        logger.Error("[app] creation fenetre echouee");
+        return -1;
+    }
+
+    while (window.IsOpen()) {
+        // les evenements arrivent ici (chapitre 4)
+    }
+
+    return 0;
+}
+```
+
+Le chapitre contient **27 lignes physiques** lorsqu'on conserve les lignes vides et le bloc de déclaration des données de l'application.
+
+Mon programme et celui du chapitre ont donc une structure très proche, mais ils ne sont pas identiques.
+
+
+# 6. Comparaison ligne par ligne
+
+## Lignes 1 et 2
+
+Mon programme :
+
+```
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
+```
+
+Chapitre :
+
+```
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
+```
+
+**Correspondance : identique.**
+
+Ces deux lignes servent à inclure les éléments principaux de `NKWindow`.
+
+
+## Lignes 3 à 5
+
+Mon programme contient :
+
+```
+#include "NKLogger/NkSink.h"
+#include "NKTime/NkTime.h"
+#include "NKTime/NkChrono.h"
+```
+
+Ces trois lignes ne sont pas présentes dans le code du chapitre.
+
+Elles constituent donc une première différence entre les deux programmes.
+
+La première est utilisée pour le logger, tandis que les deux autres concernent les fonctionnalités de temps.
+
+
+## Lignes 7 et 8
+
+Mon programme contient :
+
+```
+#include "NKEvent/NkWindowEvent.h"
+#include "NKEvent/NkKeyboardEvent.h"
+```
+
+Ces deux inclusions ne sont pas présentes dans le code du chapitre fourni.
+
+Elles constituent donc également des lignes supplémentaires dans mon programme.
+
+
+## Bloc `NKENTSEU_DEFINE_APP_DATA`
+
+Le chapitre contient :
+
+```
+NKENTSEU_DEFINE_APP_DATA([]() {
+    NkAppData d{};
+    d.appName = "MaFenetre";
+    d.appVersion = "1.0.0";
+    return d;
+}());
+```
+
+Ce bloc est **complètement absent de mon programme**.
+
+C'est une différence importante.
+
+Le chapitre définit ici les données de l'application :
+
+```
+d.appName = "MaFenetre";
+d.appVersion = "1.0.0";
+```
+
+Mon programme ne définit pas ces données d'application.
+
+Je ne peux donc pas affirmer que seules trois lignes diffèrent entre les deux programmes.
+
+
+## `using namespace`
+
+Mon programme contient :
+
+```
+using namespace nkentseu;
+```
+
+Le chapitre contient également cette instruction.
+
+**Correspondance : identique.**
+
+
+## Fonction `nkmain`
+
+Mon programme :
+
+```
+int nkmain(const NkEntryState &state) {
+```
+
+Le chapitre :
+
+```
+int nkmain(const NkEntryState &state) {
+```
+
+**Correspondance : identique.**
+
+
+
+## Configuration
+
+Les deux programmes contiennent :
+
+```
+NkWindowConfig cfg;
+```
+
+**Correspondance : identique.**
+
+
+## Titre
+
+Mon programme :
+
+```
+cfg.title  = "Ma fenetre";
+```
+
+Chapitre :
+
+```
+cfg.title = "Ma fenetre";
+```
+
+L'instruction est la même.
+
+La seule différence est l'espacement supplémentaire avant le `=` dans mon programme.
+
+**Correspondance : même instruction, présentation différente.**
+
+
+
+## Largeur
+
+Les deux programmes contiennent :
+
+```
+cfg.width = 1280;
+```
+
+**Correspondance : identique.**
+
+La largeur de la fenêtre est fixée à 1280 pixels.
+
+
+## Hauteur
+
+Les deux programmes contiennent :
+
+```
+cfg.height = 720;
+```
+
+**Correspondance : identique.**
+
+La hauteur de la fenêtre est fixée à 720 pixels.
+
+
+## Création de la fenêtre
+
+Les deux programmes utilisent :
+
+```cpp
+NkWindow window(cfg);
+```
+
+**Correspondance : identique.**
+
+---
+
+## Vérification de la fenêtre
+
+Les deux programmes contiennent :
+
+```cpp
+if (!window.IsOpen()) {
+```
+
+**Correspondance : identique.**
+
+---
+
+## Message d'erreur
+
+Les deux programmes contiennent :
+
+```
+logger.Error("[app] creation fenetre echouee");
+```
+
+**Correspondance : identique.**
+
+
+## Retour en cas d'erreur
+
+Les deux programmes contiennent :
+
+```cpp
+return -1;
+```
+
+**Correspondance : identique.**
+
+
+## Boucle principale
+
+Mon programme :
+
+```
+while (window.IsOpen()) { /* les evenements arrivent ici */ }
+```
+
+Chapitre :
+
+```
+while (window.IsOpen()) {
+    // les evenements arrivent ici (chapitre 4)
+}
+```
+
+Les deux programmes utilisent la même condition :
+
+```
+window.IsOpen()
+```
+
+La différence est uniquement dans la présentation du bloc.
+
+Mon programme place le commentaire sur la même ligne que la boucle, tandis que le chapitre place le commentaire à l'intérieur du bloc sur une ligne séparée.
+
+**Correspondance : même fonctionnement, présentation différente.**
+
+
+
+## Retour final
+
+Les deux programmes contiennent :
+
+```
+return 0;
+```
+
+**Correspondance : identique.**
+
+Cette instruction indique que le programme se termine normalement.
+
+
+
+# 7. Bilan de la comparaison
+
+La comparaison ligne par ligne montre que mon programme reprend la structure principale du programme présenté dans le chapitre.
+
+Les éléments communs sont notamment :
+
+```
+#include "NKWindow/NKWindow.h"
+#include "NKWindow/NKMain.h"
+using namespace nkentseu;
+int nkmain(...)
+NkWindowConfig cfg
+cfg.title
+cfg.width
+cfg.height
+NkWindow window(cfg)
+if (!window.IsOpen())
+logger.Error(...)
+return -1
+while (window.IsOpen())
+return 0
+```
+
+Cependant, plusieurs différences existent.
+
+### Lignes supplémentaires dans mon programme
+
+Mon programme contient les inclusions supplémentaires suivantes :
+
+```
+#include "NKLogger/NkSink.h"
+#include "NKTime/NkTime.h"
+#include "NKTime/NkChrono.h"
+#include "NKEvent/NkWindowEvent.h"
+#include "NKEvent/NkKeyboardEvent.h"
+```
+
+### Bloc présent dans le chapitre mais absent de mon programme
+
+Le chapitre contient :
+
+```
+NKENTSEU_DEFINE_APP_DATA([]() {
+    NkAppData d{};
+    d.appName = "MaFenetre";
+    d.appVersion = "1.0.0";
+    return d;
+}());
+```
+
+Ce bloc n'est pas présent dans mon programme.
+
+### Différence dans la boucle
+
+Mon programme écrit la boucle sur une seule ligne :
+
+```
+while (window.IsOpen()) { /* les evenements arrivent ici */ }
+```
+
+alors que le chapitre l'écrit sur plusieurs lignes.
 
 ### Conclusion
 
-Dans ce test, `resizable = false` empêche bien le redimensionnement de la fenêtre.
+Mon programme permet bien de réaliser la partie **fenêtre nue** de l'exercice et reprend la majorité de la structure du programme du chapitre.
 
+La comparaison détaillée montre toutefois que les deux programmes ne sont pas identiques. Les différences concernent principalement les inclusions supplémentaires de mon programme, l'absence du bloc `NKENTSEU_DEFINE_APP_DATA` et la présentation différente de la boucle principale.
 
-## 2. `movable`
-
-Pour ce test, j'ai désactivé uniquement :
-
-```
-cfg.movable = false;
-```
-
-Les autres droits sont restés à `true`.
-
-J'ai ensuite essayé de déplacer la fenêtre en faisant glisser sa barre de titre.
-
-### Observation
-
-Malgré :
-
-```
-cfg.movable = false;
-```
-
-j'ai toujours réussi à déplacer la fenêtre.
-
-### Conclusion
-
-Le droit `movable` est bien présent dans `NkWindowConfig`, mais sa désactivation n'empêche pas le déplacement dans l'implémentation Windows utilisée pour cet exercice.
-
-Il s'agit donc d'une différence entre le comportement attendu par l'énoncé et le comportement réellement observé dans le moteur.
-
-
-## 3. `closable`
-
-J'ai ensuite désactivé uniquement le droit de fermeture :
-
-```
-cfg.closable = false;
-```
-
-La fenêtre s'est ouverte normalement et les autres fonctionnalités sont restées disponibles.
-
-### Observation
-
-Le bouton rouge de fermeture était toujours présent et actif.
-
-J'ai donc pu fermer la fenêtre malgré :
-
-```
-cfg.closable = false;
-```
-
-### Conclusion
-
-La propriété `closable` n'empêche pas la fermeture de la fenêtre dans l'implémentation Windows utilisée.
-
-
-## 4. `minimizable`
-
-Pour ce test, j'ai remis :
-
-```
-cfg.closable = true;
-```
-
-puis désactivé uniquement :
-
-```
-cfg.minimizable = false;
-```
-
-### Observation
-
-Malgré la désactivation de `minimizable`, j'ai toujours réussi à minimiser la fenêtre.
-
-### Conclusion
-
-La propriété `minimizable` n'est pas effectivement appliquée par l'implémentation Windows utilisée.
-
-
-## 5. `maximizable`
-
-Pour ce test, j'ai désactivé uniquement :
-
-```
-cfg.maximizable = false;
-```
-
-### Observation
-
-Le bouton permettant de maximiser la fenêtre n'était pas fonctionnel lors de l'ouverture normale.
-
-Cependant, après avoir minimisé la fenêtre puis cliqué sur celle-ci depuis la barre des tâches, la fenêtre pouvait de nouveau s'agrandir.
-
-### Conclusion
-
-Le comportement observé ne correspond donc pas à une désactivation complète et uniforme de la maximisation. Cela montre que le comportement dépend également de la gestion native de la fenêtre par Windows.
-
-
-## 6. `canFullscreen`
-
-J'ai désactivé :
-
-```
-cfg.canFullscreen = false;
-```
-
-### Observation
-
-Je n'ai pas réussi à faire passer la fenêtre en plein écran.
-
-### Conclusion
-
-Dans mon test, la désactivation de `canFullscreen` empêche le passage en plein écran.
-
-
-## 7. `frame`
-
-Pour le dernier test, j'ai désactivé le cadre de la fenêtre :
-
-```
-cfg.frame = false;
-```
-
-### Observation
-
-La fenêtre est créée sans son cadre natif habituel.
-
-Les éléments normalement fournis par le cadre de la fenêtre, comme la barre de titre et les boutons natifs, ne sont donc plus présentés de la même manière.
-
-### Conclusion
-
-Contrairement à plusieurs autres propriétés testées, le réglage du cadre est effectivement pris en compte par l'implémentation Windows.
-
-# Remarque sur `modal`
-
-J'avais initialement considéré `modal` comme le septième droit :
-
-```
-cfg.modal = true;
-```
-
-Cependant, après vérification, `modal` ne correspond pas au septième droit demandé dans cet exercice.
-
-`modal` décrit le comportement modal de la fenêtre et ne doit donc pas être utilisé pour remplacer `frame` dans les sept tests.
-
-Lors de mon test, j'ai également constaté que la modification de `modal` ne produisait pas le blocage des interactions que j'attendais.
-
-Je ne retiens donc pas `modal` comme l'un des sept droits de cet exercice.
-
-# conclusion generale
-
-Cette expérience montre que les sept propriétés existent dans la configuration de `NkWindow`, mais qu'elles ne sont pas toutes appliquées de la même manière par l'implémentation Windows actuelle.
-
+Cette comparaison permet de retrouver les éléments du programme du chapitre directement dans mon code et d'identifier les lignes qui ont été ajoutées, supprimées ou modifiées.
