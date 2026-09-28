@@ -12,8 +12,8 @@ using namespace nkentseu;
 int nkmain(const NkEntryState &state) {
     NkWindowConfig cfg;
     cfg.title  = "Ma fenetre";
-    cfg.width  = 1280;
-    cfg.height = 720;
+    cfg.minWidth = 100;
+    cfg.minHeight = 50;
     cfg.resizable = true;
     cfg.movable = true;
     cfg.closable =  true;
