@@ -1,259 +1,259 @@
-# Test de la taille de la fenêtre, de la cible de rendu et du facteur d'échelle
+# Test de la taille minimale de la fenêtre
 
-Pour cet exercice, j'ai voulu vérifier concrètement les informations que `NkWindow` me permet de récupérer.
+## Objectif
 
-J'ai donc fait un test pour afficher côte à côte :
+L’objectif de cet exercice est de vérifier le fonctionnement de la taille minimale d’une fenêtre.
 
-* la taille de ma fenêtre ;
-* la taille de ma cible de rendu ;
-* le facteur d'échelle.
+L’énoncé demande de :
 
-J'ai ensuite exécuté mon programme pour voir les valeurs réellement retournées.
+1. fixer une taille minimale ;
+2. essayer de réduire la fenêtre en dessous de cette taille ;
+3. constater que la fenêtre ne peut pas être réduite davantage ;
+4. retirer la taille minimale ;
+5. recommencer les manipulations ;
+6. déterminer et noter la plus petite taille réellement acceptée.
 
-## Mon projet
 
-Mon projet **FirstWindow** se trouve dans :
+## 1. Vérification de la configuration
 
-```
-C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow
-```
-
-J'ai travaillé dans le fichier :
-
-```
-C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\Window\src\main.cpp
-```
-
-Avant de modifier mon code, j'ai également vérifié les fonctions disponibles dans :
+Avant de modifier le programme, j’ai vérifié la définition de `NkWindowConfig` dans le fichier :
 
 ```
 C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\include\NKWindow\Core\NkWindow.h
 ```
 
-Cela m'a permis de retrouver les fonctions dont j'avais besoin pour faire le test.
+Cette vérification était nécessaire pour connaître les noms exacts des propriétés permettant de définir les dimensions minimales de la fenêtre.
 
-## Les fonctions que j'ai utilisées
+J’ai constaté que `minSize` n’est pas un champ de `NkWindowConfig`.
 
-Après avoir créé ma fenêtre avec :
+Les deux dimensions minimales sont définies séparément dans la configuration. J’ai donc utilisé les deux champs réellement présents dans l’en-tête au lieu de créer une propriété qui n’existe pas.
 
-```
-NkWindow window(cfg);
-```
 
-j'ai récupéré les trois informations avec :
+## 2. Configuration de la fenêtre
 
-```
-auto size = window.GetSize();
-auto displaySize = window.GetDisplaySize();
-float32 scale = window.GetDpiScale();
-```
-
-J'ai donc utilisé :
+La fenêtre utilisée pour les tests est configurée comme une fenêtre redimensionnable :
 
 ```
-window.GetSize()
+NkWindowConfig cfg;
+
+cfg.title = "Ma fenetre";
+cfg.width = 1280;
+cfg.height = 720;
+
+cfg.resizable = true;
+cfg.movable = true;
+cfg.closable = false;
+cfg.minimizable = true;
+cfg.maximizable = true;
+cfg.canFullscreen = true;
+cfg.modal = true;
 ```
 
-pour récupérer la taille de ma fenêtre.
-
-J'ai utilisé :
+La propriété :
 
 ```
-window.GetDisplaySize()
+cfg.resizable = true;
 ```
 
-pour récupérer la taille de ma cible de rendu.
+est importante car elle permet de modifier la largeur et la hauteur de la fenêtre avec la souris.
 
-Enfin, j'ai utilisé :
 
-```
-window.GetDpiScale()
-```
+## 3. Première partie : fixer une taille minimale
 
-pour récupérer le facteur d'échelle.
-
-## Le code que j'ai ajouté
-
-J'ai placé le test juste après la création de ma fenêtre :
+Pour la première partie de l’exercice, j’ai fixé explicitement les deux dimensions minimales à :
 
 ```
-NkWindow window(cfg);
-
-auto size = window.GetSize();
-auto displaySize = window.GetDisplaySize();
-float32 scale = window.GetDpiScale();
+largeur minimale : 800 pixels
+hauteur minimale  : 600 pixels
 ```
 
-Ensuite, j'ai utilisé le logger pour afficher les trois résultats sur la même ligne :
+Les deux propriétés utilisées correspondent aux champs réellement présents dans `NkWindowConfig`.
+
+Le programme a ensuite été compilé et exécuté afin de vérifier que la configuration était valide.
+
+J’ai essayé de réduire progressivement la fenêtre en dessous de `800 × 600`.
+
+### Observation
+
+Lorsque la fenêtre atteint les dimensions minimales configurées, il n’est plus possible de la réduire davantage.
+
+La bordure de la fenêtre empêche donc de passer sous les deux valeurs définies dans la configuration.
+
+Cette première manipulation permet de vérifier expérimentalement que les deux propriétés de taille minimale sont bien prises en compte par le moteur.
+
+
+## 4. Mesure de la taille avec l’événement de redimensionnement
+
+Pour éviter de déterminer les dimensions uniquement à l’œil, j’ai utilisé l’événement de redimensionnement de la fenêtre.
+
+J’ai d’abord vérifié la définition de cet événement dans :
 
 ```
-logger.Info(
-    "Fenetre : {}x{} | Cible de rendu : {}x{} | Facteur d'echelle : {}",
-    size.x, size.y,
-    displaySize.x, displaySize.y,
-    scale
-);
+C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow\Mon workspace\include\NKEvent\NkWindowEvent.h
 ```
 
-J'ai choisi de les afficher sur une seule ligne pour pouvoir les comparer directement.
+Le programme affiche ensuite les dimensions reçues lorsqu’un redimensionnement est effectué.
 
-La partie complète de mon code est donc :
+Cette méthode permet de mesurer la taille réellement communiquée au programme au lieu de simplement estimer la taille de la fenêtre visuellement.
 
-```
-auto size = window.GetSize();
-auto displaySize = window.GetDisplaySize();
-float32 scale = window.GetDpiScale();
 
-logger.Info(
-    "Fenetre : {}x{} | Cible de rendu : {}x{} | Facteur d'echelle : {}",
-    size.x, size.y,
-    displaySize.x, displaySize.y,
-    scale
-);
-```
+## 5. Retrait de la taille minimale
 
-## La configuration de ma fenêtre
+Après le premier test, les deux propriétés de taille minimale ont été retirées du programme.
 
-Dans mon programme, j'ai configuré ma fenêtre avec :
+Le programme a été recompilé puis relancé.
 
-```
-cfg.width = 800;
-cfg.height = 600;
-```
+L’objectif est maintenant de déterminer quelle taille minimale le moteur utilise lorsqu’aucune limite minimale n’est définie explicitement dans notre configuration.
 
-Puis j'ai créé la fenêtre avec :
+Il est important de distinguer cette valeur de la taille minimale définie précédemment : dans cette deuxième partie, ce sont les valeurs par défaut du moteur qui sont observées.
+
+
+## 6. Réduction progressive de la fenêtre
+
+J’ai effectué plusieurs tests en réduisant progressivement la taille de la fenêtre.
+
+Pour chaque tentative, la taille réellement obtenue est relevée grâce à l’événement de redimensionnement.
+
+### Test 1 : 800 × 600
+
+Taille demandée :
 
 ```
-NkWindow window(cfg);
+800 × 600
 ```
 
-Je voulais ensuite vérifier les valeurs réellement retournées par la fenêtre avec `GetSize()`, `GetDisplaySize()` et `GetDpiScale()`.
-
-## J'ai compilé et exécuté mon programme
-
-Je me suis placé dans le dossier de mon projet :
+Taille réellement obtenue :
 
 ```
-C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow
+798 x 592
 ```
 
-J'ai d'abord compilé avec :
+---
+
+### Test 2 : 600 × 400
+
+Taille demandée :
 
 ```
-PS C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow> jenga build
+600 × 400
 ```
 
-Puis j'ai lancé mon programme avec :
+Taille réellement obtenue :
 
 ```
-PS C:\Users\cloth\OneDrive\Documenten\workspace\FirstWindow> jenga run
+598 x 392
 ```
 
-## Le résultat que j'ai obtenu
 
-Après l'exécution, mon programme a affiché :
+### Test 3 : 400 × 200
 
-```
-Window: 798x798 | Display: 798x798 | DPI Scale: 798
-```
-
-J'ai donc obtenu les valeurs suivantes :
+Taille demandée :
 
 ```
-Taille de la fenêtre       : 798 x 798
-Taille de la cible de rendu: 798 x 798
-Facteur d'échelle          : 798
+400 × 200
 ```
 
-J'ai bien obtenu la même valeur pour la taille de la fenêtre et pour la taille de la cible de rendu :
+Taille réellement obtenue :
 
 ```
-798 x 798
+398 x 192
 ```
 
-## Comparaison avec ma configuration
+---
 
-Au départ, j'avais écrit dans ma configuration :
+### Test 4 : 200 × 100
 
-```
-cfg.width = 800;
-cfg.height = 600;
-```
-
-Mais lorsque j'ai récupéré la taille avec :
+Taille demandée :
 
 ```
-window.GetSize();
+200 × 100
 ```
 
-j'ai obtenu :
+Taille réellement obtenue :
 
 ```
-798 x 798
+198 x 92
 ```
 
-Cela m'a permis de constater que les valeurs que je configure avec `NkWindowConfig` et les valeurs que je récupère ensuite avec `GetSize()` ne sont pas forcément identiques.
+### Test 5 : 100 × 50
 
-J'ai donc retenu les valeurs réellement retournées par mon programme plutôt que de simplement reprendre les valeurs `800` et `600` de ma configuration.
-
-## Vérification du facteur d'échelle
-
-J'ai également testé :
+Taille demandée :
 
 ```
-float32 scale = window.GetDpiScale();
+100 × 50
 ```
 
-Dans mon exécution, j'ai obtenu :
+Taille réellement obtenue :
 
 ```
-DPI Scale: 798
+148 x 43
 ```
 
-La valeur obtenue lors de mon test était donc différente de `1`.
 
-Je l'ai affichée directement dans le logger afin de pouvoir vérifier le résultat au moment de l'exécution.
 
-## Ce que j'ai vérifié avec ce test
+### Test 6 : 50 × 20
 
-Avec ce petit test, j'ai pu vérifier directement les trois fonctions :
+Taille demandée :
 
 ```
-window.GetSize();
-window.GetDisplaySize();
-window.GetDpiScale();
+50 × 20
 ```
 
-J'ai ensuite comparé les valeurs obtenues :
+Taille réellement obtenue :
 
 ```
-GetSize()        → 798 x 798
-GetDisplaySize() → 798 x 798
-GetDpiScale()    → 798
+148 x 43
 ```
 
-Je n'ai donc pas utilisé de valeur supposée pour remplir mon compte rendu : j'ai repris les valeurs que mon propre programme m'a affichées.
+Ce dernier test permet de déterminer si le moteur accepte réellement une fenêtre aussi petite ou s’il applique sa propre limite minimale.
 
-## Conclusion
 
-Pour réaliser cet exercice, j'ai commencé par vérifier les fonctions disponibles dans `NkWindow.h`.
 
-J'ai ensuite utilisé :
+## 7. Comparaison des résultats
+
+Les résultats doivent être comparés entre les deux configurations :
+
+### Avec les deux bornes minimales
+
+Les dimensions minimales sont celles que j’ai explicitement définies dans `NkWindowConfig`.
+
+Lorsque j’essaie de réduire la fenêtre sous ces valeurs, le moteur empêche le redimensionnement d’aller plus loin.
+
+### Sans les deux bornes minimales
+
+Les limites définies par mon programme sont supprimées.
+
+Les dimensions obtenues lors des tentatives de redimensionnement permettent alors d'observer les valeurs minimales utilisées par défaut par le moteur.
+
+Cette comparaison permet de distinguer clairement :
+
+* la limite que j’ai imposée dans mon programme ;
+* la limite minimale appliquée par défaut par le moteur.
+
+
+## 8. Plus petite taille observée
+
+Après avoir retiré les deux limites minimales et effectué les différents tests, la plus petite taille réellement obtenue est :
 
 ```
-GetSize()
-GetDisplaySize()
-GetDpiScale()
+148 x 43
 ```
 
-pour récupérer les trois informations demandées.
+Cette valeur doit être déterminée à partir de l’événement de redimensionnement et non simplement à partir d’une observation visuelle.
 
-J'ai ajouté leur affichage avec `logger.Info()`, puis j'ai compilé et exécuté mon programme avec Jenga.
+La tentative de réduire davantage la fenêtre permet ensuite de vérifier que cette valeur correspond bien à la limite minimale appliquée par le moteur.
 
-Le résultat que j'ai réellement obtenu est :
 
-```
-Window: 798x798 | Display: 798x798 | DPI Scale: 798
-```
+## 9. Conclusion
 
-Ce test m'a permis de voir directement les valeurs retournées par ma fenêtre et de les comparer avec les valeurs que j'avais utilisées dans sa configuration.
+Cet exercice m’a permis de vérifier expérimentalement le fonctionnement de la taille minimale d’une fenêtre.
+
+La première partie consiste à définir explicitement deux limites minimales dans `NkWindowConfig`. Lorsque la fenêtre atteint ces dimensions, elle ne peut plus être réduite davantage.
+
+Dans la deuxième partie, j’ai retiré ces deux limites afin d’observer le comportement par défaut du moteur.
+
+J’ai également utilisé l’événement de redimensionnement pour obtenir les dimensions réellement reçues par le programme. Cette méthode est plus précise qu’une simple estimation visuelle.
+
+La taille minimale finale doit donc être déterminée à partir des valeurs affichées par le programme lors des tests. Elle ne doit pas être déduite uniquement du fait que la fenêtre semble rester à une certaine dimension.
+
+Cette vérification permet de distinguer clairement les limites configurées par le programme des limites imposées par défaut par le moteur.
