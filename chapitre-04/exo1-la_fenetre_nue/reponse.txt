@@ -1,0 +1,25 @@
+Monsieur, j'ai tout essayé. Je vous avais écrit sur la plateforme IB à propos de cette erreur que je n'arrive vraiment pas à comprendre et que je n'arrive pas à résoudre.
+J'ai tout essayé et j'ai fait de mon mieux, mais je n'ai pas réussi à faire fonctionner le programme. 
+J'ai essayé de modifier et de corriger le code, j'ai supprimé certaines parties et recommencé plusieurs fois, mais rien n'a fonctionné. 
+Je vous ai également envoyé un message sur IB, mais je n'ai pas encore reçu de réponse. 
+En tout cas, voici le résultat de tout ce que j'ai déjà fait.
+
+Ce que la coquille fait à ma place :
+
+La classe Fenetre hérite de NkCanvasApp. 
+La coquille crée la fenêtre et gère le cycle de vie de l'application à ma place. 
+Je n'ai donc pas besoin de créer manuellement la fenêtre, le contexte de rendu ou la boucle principale. 
+Je configure seulement les paramètres nécessaires dans le constructeur, puis NkCanvasApp::Run lance l'application.
+
+Ce qui se passe si je configure dans OnInit :
+
+Si je déplace la configuration de la fenêtre dans OnInit, le programme peut toujours compiler, mais la configuration arrive trop tard pour la création initiale de la fenêtre. 
+Les paramètres comme le titre, la taille et la couleur de fond ne sont donc pas appliqués comme prévu. 
+La configuration doit être faite dans le constructeur, avant la création de la fenêtre.
+
+Ce qui se passe sans NKMain.h :
+
+Sans NKMain.h, le code peut réussir à compiler jusqu'à l'étape de l'édition des liens, mais le programme échoue ensuite au linkage parce que le point d'entrée et les éléments nécessaires au fonctionnement de nkmain ne sont pas correctement reliés. 
+Dans mes essais, j'ai rencontré des erreurs de linkage liées à l'environnement et aux bibliothèques précompilées du kit Canvas. 
+J'ai essayé plusieurs solutions et plusieurs configurations de compilation, mais je n'ai pas réussi à résoudre cette erreur. 
+Le code de l'exercice reste cependant conforme à ce qui est demandé.
