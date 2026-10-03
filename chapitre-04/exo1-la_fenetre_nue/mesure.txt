@@ -1,0 +1,8 @@
+Avec mon code, le comptage peut être fait comme suit :
+
+24 lignes totales si on compte les lignes vides ;
+17 lignes utiles si on retire les lignes vides et les commentaires(il n'ya pas commentaire).
+
+Donc :
+
+lignes : 24, utiles : 17, fond : 18 18 24
