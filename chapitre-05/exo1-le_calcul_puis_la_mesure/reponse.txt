@@ -1,0 +1,11 @@
+Ce que la taille du fichier ne dit pas :
+
+La taille du fichier sur le disque ne correspond pas à la mémoire utilisée une fois l'image chargée. Par exemple, capture.png nécessite théoriquement 1 925 280 octets pour ses pixels, tandis que photo1.jpg en nécessite 291 600. Le fichier est compressé sur le disque, mais les pixels sont décodés en mémoire. La taille du fichier seule ne permet donc pas de connaître la mémoire nécessaire.
+
+L'écart entre calcul et mesure :
+
+Le calcul correspond à la largeur multipliée par la hauteur et par le nombre d'octets par pixel. La mémoire réellement utilisée par le processus peut être différente, car le programme possède aussi d'autres données et le système gère la mémoire par pages. Il faut comparer les mesures obtenues avant et après le chargement de chaque image pour estimer cet écart.
+
+Avant d'ouvrir cinquante photos :
+
+Avant d'ouvrir cinquante photos, je vérifierais leur résolution et la mémoire qu'elles nécessitent une fois décodées. Je pourrais charger uniquement les images nécessaires, réduire leur résolution si possible et libérer celles qui ne sont plus utilisées. Cela permettrait de limiter la consommation de mémoire et d'éviter que le programme utilise trop de ressources.
