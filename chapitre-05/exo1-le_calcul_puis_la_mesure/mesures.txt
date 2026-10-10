@@ -1,0 +1,5 @@
+capture.png : 840 x 573, BytesPP : 4, memoire theorique : 1925280 octets
+dessin.png : 1152 x 648, BytesPP : 4, memoire theorique : 2985984 octets
+icone.png : 1280 x 1280, BytesPP : 3, memoire theorique : 4915200 octets
+photo1.jpg : 270 x 360, BytesPP : 3, memoire theorique : 291600 octets
+photo2.jpg : 1000 x 609, BytesPP : 3, memoire theorique : 1827000 octets
