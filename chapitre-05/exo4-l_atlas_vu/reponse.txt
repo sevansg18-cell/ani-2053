@@ -1,0 +1,20 @@
+Pourquoi une seule texture : Une seule texture regroupe tous les glyphes d'une police.
+Cela évite de devoir charger et utiliser une texture différente pour chaque lettre.
+Le moteur peut ainsi accéder plus facilement aux caractères pendant l'affichage du texte.
+
+Ce que change la taille : Lorsque la taille de la police augmente, les glyphes sont rastérisés avec davantage de pixels.
+La texture peut donc devenir plus grande et occuper davantage de mémoire.
+Le nombre de glyphes reste normalement identique si les caractères chargés sont les mêmes.
+
+A quoi sert la marge entre glyphes : La marge sépare les glyphes pour éviter que leurs pixels débordent sur les caractères voisins pendant le filtrage de la texture.
+Elle limite ainsi les effets de saignement, comme l'apparition de pixels provenant d'une autre lettre.
+Pourquoi une seule texture : Une seule texture regroupe tous les glyphes d'une police.
+Cela évite de devoir charger et utiliser une texture différente pour chaque lettre.
+Le moteur peut ainsi accéder plus facilement aux caractères pendant l'affichage du texte.
+
+Ce que change la taille : Lorsque la taille de la police augmente, les glyphes sont rastérisés avec davantage de pixels.
+La texture peut donc devenir plus grande et occuper davantage de mémoire.
+Le nombre de glyphes reste normalement identique si les caractères chargés sont les mêmes.
+
+A quoi sert la marge entre glyphes : La marge sépare les glyphes pour éviter que leurs pixels débordent sur les caractères voisins pendant le filtrage de la texture.
+Elle limite ainsi les effets de saignement, comme l'apparition de pixels provenant d'une autre lettre.
